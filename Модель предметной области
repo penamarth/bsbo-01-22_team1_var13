@@ -1,4 +1,4 @@
- python
+```plantuml
 @startuml
 
 
@@ -46,3 +46,4 @@ Payment "0..1" -down-- "1" Register : Обработка платежа
 
 
 @enduml
+```
