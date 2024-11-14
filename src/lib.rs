@@ -1,3 +1,5 @@
+#![expect(unused_imports)]
+
 mod account;
 mod advertisement;
 mod board;
