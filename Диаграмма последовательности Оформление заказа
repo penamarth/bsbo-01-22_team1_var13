@@ -1,0 +1,40 @@
+```plantuml
+@startuml
+
+actor Покупатель
+entity Board
+entity Account
+entity Delivery
+entity Item
+entity PaymentAdapter
+entity ExternalPaymentSystem
+
+Покупатель -> Board : makeOrder()
+activate Board
+Board -> Account : getCurrentDeliveryWithoutPayment()
+Account -> Board : deliveryWithoutPayment
+deactivate Account
+
+activate Board
+loop для каждого Item в Delivery
+Board -> Item : getItemPrice()
+Item -> Board : itemPrice
+end
+
+Board -> PaymentAdapter : initiatePayment(Account, totalCost)
+activate PaymentAdapter
+
+PaymentAdapter -> ExternalPaymentSystem : preparePayment(Account, totalCost)
+ExternalPaymentSystem -> PaymentAdapter : paymentData
+deactivate ExternalPaymentSystem
+
+PaymentAdapter -> PaymentAdapter : createPayment(paymentData)
+PaymentAdapter -> Delivery : setPayment(payment)
+
+deactivate PaymentAdapter
+deactivate Delivery
+deactivate Board
+
+@enduml
+
+```
