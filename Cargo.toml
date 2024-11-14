@@ -1,0 +1,29 @@
+[package]
+name = "bsbo-01-22-team1-var13"
+version = "0.1.0"
+edition = "2021"
+authors = [
+    "Буторин Кирилл",
+    "Вартанян Артём",
+    "Кирьянов Владимир",
+    "Коробко Дмитрий",
+    "Чаплыгин Степан",
+]
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+correctness = "warn"
+suspicious = "warn"
+style = "warn"
+pedantic = "warn"
+nursery = "warn"
+complexity = "warn"
+perf = "warn"
+enum_glob_use = { level = "warn", priority = 1 }
+single_match_else = { level = "allow", priority = 1 }
+match_bool = { level = "allow", priority = 1 }
+
+[dependencies]
+uuid = { version = "1.11.0", features = ["v4"] }
