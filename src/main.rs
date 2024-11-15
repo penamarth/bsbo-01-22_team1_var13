@@ -1,9 +1,11 @@
 use bsbo_01_22_team1_var13::Account;
 
-fn main() -> Result<(), ()> {
-    let guest = Account::unauthenticated();
+fn main() -> Result<(), eyre::Report> {
+    color_eyre::install()?;
 
-    // Do stuff as a guest?
+    let guest = Account::unauthenticated();
+    let _ = guest.view_board();
+    let _ = guest.search_board("stuff");
 
     let _user = guest.authenticate_as_user()?;
 

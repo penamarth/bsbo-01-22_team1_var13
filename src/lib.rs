@@ -5,6 +5,7 @@ mod advertisement;
 mod board;
 mod delivery;
 mod description;
+mod error;
 mod item;
 mod payment;
 
@@ -13,5 +14,8 @@ pub use advertisement::*;
 pub use board::*;
 pub use delivery::*;
 pub use description::*;
+pub use error::*;
 pub use item::*;
 pub use payment::*;
+
+pub const PAGE_LENGTH: usize = 20;

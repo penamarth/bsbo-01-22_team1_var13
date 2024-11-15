@@ -3,13 +3,17 @@ use itertools::Itertools;
 
 pub type AdvertisementID = uuid::Uuid;
 
+#[derive(Debug)]
 #[must_use]
 pub struct Board {
     advertisement_ids: Vec<AdvertisementID>,
 }
 
+#[derive(Debug)]
 #[must_use]
-pub struct Query {}
+pub struct Query {
+    pub search_string: String,
+}
 
 impl Board {
     pub const fn load() -> Self {
@@ -29,7 +33,7 @@ impl Board {
     }
 
     #[must_use]
-    pub fn search(query: &Query) -> Vec<Advertisement> {
+    pub fn search(&self, query: &Query) -> Vec<Advertisement> {
         let _ = query;
         unimplemented!()
     }

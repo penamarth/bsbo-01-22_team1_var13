@@ -1,15 +1,17 @@
 #![expect(private_bounds, reason = "Intentionally sealed traits")]
-#![allow(clippy::missing_errors_doc, clippy::missing_panics_doc)]
-#![allow(clippy::result_unit_err)]
 
+use crate::{Advertisement, Board, Error, Query};
 use std::marker::PhantomData;
 use uuid::Uuid;
 
+#[derive(Debug)]
 #[must_use]
 pub struct Account<R: Role> {
-    pub uuid: Uuid,
+    pub uuid: AcccountID,
     role: PhantomData<R>,
 }
+
+pub type AcccountID = Uuid;
 
 trait Role {}
 pub struct Guest;
@@ -35,11 +37,11 @@ impl Default for Account<Guest> {
 }
 
 impl Account<Guest> {
-    pub fn authenticate_as_user(self) -> Result<Account<User>, ()> {
+    pub fn authenticate_as_user(self) -> Result<Account<User>, Error> {
         unimplemented!()
     }
 
-    pub fn authenticate_as_moderator(self) -> Result<Account<Moderator>, ()> {
+    pub fn authenticate_as_moderator(self) -> Result<Account<Moderator>, Error> {
         unimplemented!()
     }
 }
@@ -53,5 +55,20 @@ impl Account<User> {
 impl Account<Moderator> {
     pub fn as_guest(&self) -> Self {
         unimplemented!()
+    }
+}
+
+impl<R: Role> Account<R> {
+    #[must_use]
+    pub fn view_board(&self) -> Vec<Advertisement> {
+        Board::load().view_advertisements(crate::PAGE_LENGTH)
+    }
+
+    #[must_use]
+    pub fn search_board(&self, search_string: &str) -> Vec<Advertisement> {
+        let query = Query {
+            search_string: search_string.to_owned(),
+        };
+        Board::load().search(&query)
     }
 }
