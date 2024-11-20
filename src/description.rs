@@ -3,7 +3,7 @@ use std::num::NonZeroUsize;
 use tracing::instrument;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[must_use]
 pub struct Description {
     pub id: Uuid,

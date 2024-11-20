@@ -4,7 +4,7 @@ use crate::{Advertisement, Board, Delivery, Error, Payment, Query};
 use std::{collections::HashMap, marker::PhantomData};
 use uuid::{uuid, Uuid};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[must_use]
 pub struct Account<R: Role> {
     pub uuid: AcccountID,
@@ -17,11 +17,11 @@ pub struct Account<R: Role> {
 pub type AcccountID = Uuid;
 
 trait Role {}
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Guest;
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct User;
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Moderator;
 impl Role for Guest {}
 impl Role for User {}
@@ -60,9 +60,12 @@ impl Account<User> {
         unimplemented!()
     }
 
-    pub fn seller_1() -> Self {
+    pub const TEST_USER_UUID: Uuid = uuid!("67e55044-10b1-426f-9247-bb680e5fe0c8");
+    pub const TEST_SELLER_UUID: Uuid = uuid!("a9a65d98-25f6-48f7-89da-5e69691acaea");
+
+    pub fn test_user() -> Self {
         Self {
-            uuid: uuid!("67e55044-10b1-426f-9247-bb680e5fe0c8"),
+            uuid: Self::TEST_USER_UUID,
             name: String::from("Kirill Butorin"),
             role: PhantomData,
             cart: Delivery::blank(),
@@ -70,11 +73,11 @@ impl Account<User> {
         }
     }
 
-    pub fn seller_2() -> Self {
+    pub fn test_seller() -> Self {
         Self {
-            uuid: uuid!("a9a65d98-25f6-48f7-89da-5e69691acaea"),
+            uuid: Self::TEST_SELLER_UUID,
             name: String::from("Maxim Ganshin"),
-            ..Self::seller_1()
+            ..Self::test_user()
         }
     }
 }
@@ -84,9 +87,9 @@ impl Account<Moderator> {
         unimplemented!()
     }
 
-    pub fn moderator() -> Self {
+    pub fn random_moderator() -> Self {
         Self {
-            uuid: uuid!("F9168C5E-CEB2-4faa-B6BF-329BF39FA1E4"),
+            uuid: Uuid::new_v4(),
             name: String::from("Moderator"),
             role: PhantomData,
             cart: Delivery::blank(),

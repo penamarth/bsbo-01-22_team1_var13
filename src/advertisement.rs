@@ -5,7 +5,7 @@ use std::fmt;
 use tracing::instrument;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[must_use]
 pub struct Advertisement {
     pub id: Uuid,
@@ -16,7 +16,7 @@ pub struct Advertisement {
     pub seller: Account<User>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AdvertisementStatus {
     Listed,
     AwaitsModeration { moderator: Account<Moderator> },
@@ -29,7 +29,7 @@ impl Advertisement {
             id: Uuid::new_v4(),
             published_at: Utc::now(),
             status: AdvertisementStatus::AwaitsModeration {
-                moderator: Account::moderator(),
+                moderator: Account::random_moderator(),
             },
             item,
             description,

@@ -1,7 +1,7 @@
 use tracing::instrument;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 #[must_use]
 pub struct Item {
     pub id: Uuid,

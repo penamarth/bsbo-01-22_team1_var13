@@ -1,6 +1,7 @@
-use crate::{Account, Item, User};
+use crate::{Account, Item, Payment, Price, User};
+use tracing::instrument;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 #[must_use]
 pub struct Delivery {
     pub items: Vec<Item>,
@@ -15,5 +16,10 @@ impl Delivery {
             items: vec![],
             destination: (),
         }
+    }
+
+    #[must_use]
+    pub fn total_price(&self) -> Price {
+        self.items.iter().map(|item| item.price).sum()
     }
 }
