@@ -1,6 +1,5 @@
 use bsbo_01_22_team1_var13::{Account, Advertisement, Board, Description, Error, Item, Query};
 use color_eyre::owo_colors::OwoColorize;
-use itertools::Itertools;
 
 fn main() -> Result<(), eyre::Report> {
     color_eyre::install()?;
@@ -9,7 +8,9 @@ fn main() -> Result<(), eyre::Report> {
     let mut board = Board::load();
     let user_uuid = Account::TEST_USER_UUID;
 
-    // По умолчанию доска ограничит количество результатов до 20, для тестирования заставим её выводить *все* результаты.
+    // По умолчанию доска ограничит количество объявлений до 20,
+    // для тестирования заставим её выводить *все* результаты.
+    // P.S. `usize::MAX` это 18446744073709551615 на x86_64.
     board.page_length = usize::MAX;
 
     // Создадим новое "пользовательское" объявление на доске.
@@ -32,6 +33,9 @@ fn main() -> Result<(), eyre::Report> {
     // Выполним поиск по доске, добавим найденные объявления в корзину.
     {
         let search_string = String::from("user");
+        //                               ^^^^^^
+        // Должно найти "user-created advertisement" из кода выше.
+
         eprintln!(
             "{}",
             format!("SEARCH RESULTS (pattern = {search_string:?}):")
@@ -39,21 +43,28 @@ fn main() -> Result<(), eyre::Report> {
                 .black()
                 .on_magenta()
         );
-        let query = Query { search_string };
-        let results = board.search_advertisements(&query).cloned().collect_vec();
+        let results = board
+            .search_advertisements(&Query { search_string })
+            .cloned()
+            .collect::<Vec<_>>();
         for adv in &results {
             eprintln!("{adv}\n");
         }
 
+        // Добавляем в корзину юзера все объявления, которые подошли под поиск.
         board.extend_cart(user_uuid, results.iter().map(|ad| ad.item.clone()))?;
     }
 
     // Оформим заказ для пользователя.
     {
-        board.checkout_cart(user_uuid)?;
-        let _user = board
+        board.place_order(user_uuid)?;
+
+        // Увидим, что `Delivery` сохранился в архив заказов
+        // пользователя вместе с соответствующим `Payment`.
+        let user = board
             .get_user_mut(user_uuid)
             .ok_or(Error::UserNotFound(user_uuid))?;
+        dbg!(&user.past_orders);
     }
 
     Ok(())

@@ -1,7 +1,5 @@
-use crate::{
-    Account, Advertisement, AdvertisementStatus, Delivery, Description, Item, Moderator, Payment,
-    User,
-};
+use crate::{Account, Advertisement, Delivery, Description, Item};
+use crate::{AdvertisementStatus, Moderator, Payment, User};
 use chrono::Utc;
 use itertools::Itertools;
 use tracing::instrument;
@@ -99,8 +97,8 @@ impl Board {
         Ok(())
     }
 
-    #[instrument(name = "place_order", skip_all)]
-    pub fn checkout_cart(&mut self, user_uuid: Uuid) -> Result<(), crate::Error> {
+    #[instrument(skip_all)]
+    pub fn place_order(&mut self, user_uuid: Uuid) -> Result<(), crate::Error> {
         let user = self
             .get_user_mut(user_uuid)
             .ok_or(crate::Error::UserNotFound(user_uuid))?;
