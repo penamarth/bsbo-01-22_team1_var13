@@ -44,3 +44,13 @@
 Обзор: информационная система позволяет размещать и удалять объявления о продаже различных товаров.
 
 Пример: https://gitlab.com/penamarth/pos.git
+
+#### Работа программы
+
+```nushell
+# в STDOUT трассировка вызовов через `tracing`.
+# в STDERR тестовые данные и human-readable информация.
+cargo run
+```
+
+![](assets/test_output.png)

@@ -14,17 +14,19 @@ fn main() -> Result<(), eyre::Report> {
     board.page_length = usize::MAX;
 
     // Создадим новое "пользовательское" объявление на доске.
+    // Считаем, что оно сразу же пройдёт процесс модерации.
     {
         let seller = Account::test_seller();
         let item = Item::create("User-created advertisement", 750);
         let description = Description::create("bla bla bla", vec![(), ()]);
-        let advertisement = Advertisement::create(item, description, seller);
+        let mut advertisement = Advertisement::create(item, description, seller);
+        advertisement.confirm_moderation();
         board.add_advertisement(advertisement);
     }
 
     // Просмотрим все объявления на доске.
     {
-        eprintln!("{}", "BOARD CONTENTS:".bold().black().on_magenta());
+        eprintln!("{}", " ALL ADVERTISEMENTS: ".bold().black().on_magenta());
         for adv in board.view_advertisements() {
             eprintln!("{adv}\n");
         }
@@ -38,7 +40,7 @@ fn main() -> Result<(), eyre::Report> {
 
         eprintln!(
             "{}",
-            format!("SEARCH RESULTS (pattern = {search_string:?}):")
+            format!(" SEARCH RESULTS (pattern = {search_string:?}): ")
                 .bold()
                 .black()
                 .on_magenta()
@@ -64,6 +66,7 @@ fn main() -> Result<(), eyre::Report> {
         let user = board
             .get_user_mut(user_uuid)
             .ok_or(Error::UserNotFound(user_uuid))?;
+        eprintln!("{}", " USER'S PAST ORDERS: ".bold().black().on_magenta());
         dbg!(&user.past_orders);
     }
 

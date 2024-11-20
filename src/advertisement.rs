@@ -36,6 +36,11 @@ impl Advertisement {
             seller,
         }
     }
+
+    #[instrument(skip_all)]
+    pub fn confirm_moderation(&mut self) {
+        self.status = AdvertisementStatus::Listed;
+    }
 }
 
 impl fmt::Display for Advertisement {
