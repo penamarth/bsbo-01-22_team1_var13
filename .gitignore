@@ -16,3 +16,4 @@ tarpaulin-report.html
 
 # Nix build results.
 /result
+.direnv/

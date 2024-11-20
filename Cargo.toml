@@ -34,4 +34,7 @@ color-eyre = "0.6.3"
 eyre = "0.6.12"
 itertools = "0.13.0"
 thiserror = "2.0.3"
+tracing = "0.1.40"
+tracing-error = "0.2.0"
+tracing-subscriber = { version = "0.3.18", features = ["fmt", "env-filter"] }
 uuid = { version = "1.11.0", features = ["v4"] }

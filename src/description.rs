@@ -1,21 +1,25 @@
 use crate::Error;
 use std::num::NonZeroUsize;
+use tracing::instrument;
 use uuid::Uuid;
 
 #[derive(Debug)]
 #[must_use]
 pub struct Description {
-    pub id: DescriptionID,
+    pub id: Uuid,
     pub body: String,
     pub images: Vec<Image>,
 }
 
-pub type DescriptionID = Uuid;
 pub type Image = ();
 
 impl Description {
-    pub fn load(id: DescriptionID) -> Result<Self, Error> {
-        let _ = id;
-        unimplemented!()
+    #[instrument(name = "create_description", skip(body))]
+    pub fn create(body: &str, images: Vec<Image>) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            body: body.to_string(),
+            images,
+        }
     }
 }
