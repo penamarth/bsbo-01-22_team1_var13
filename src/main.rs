@@ -65,7 +65,7 @@ fn main() -> Result<(), eyre::Report> {
 
         eprintln!();
         eprint_title("TRACKING THE LAST ORDER:");
-        match user.past_orders.iter_mut().next() {
+        match user.past_orders.iter().next() {
             None => unreachable!(),
             Some((delivery, _)) => {
                 for (status, datetime) in delivery.track() {

@@ -18,4 +18,4 @@ pub use error::*;
 pub use item::*;
 pub use payment::*;
 
-pub const PAGE_LENGTH: usize = 20;
+pub const PAGE_LENGTH: usize = 100;
