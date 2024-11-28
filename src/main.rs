@@ -1,6 +1,4 @@
-use bsbo_01_22_team1_var13::{
-    Account, Advertisement, Board, DeliveryStatus, Description, Error, Item, Query,
-};
+use bsbo_01_22_team1_var13::{Account, Advertisement, Board, Description, Error, Item, Query};
 use color_eyre::owo_colors::OwoColorize;
 
 fn main() -> Result<(), eyre::Report> {
