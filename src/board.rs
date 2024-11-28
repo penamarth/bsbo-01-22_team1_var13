@@ -1,4 +1,4 @@
-use crate::{Account, Advertisement, Delivery, Description, Item};
+use crate::{Account, Advertisement, Delivery, DeliveryStatus, Description, Item};
 use crate::{AdvertisementStatus, Moderator, Payment, User};
 use chrono::Utc;
 use itertools::Itertools;
@@ -11,7 +11,6 @@ pub struct Board {
     advertisements: Vec<Advertisement>,
     users: Vec<Account<User>>,
     moderators: Vec<Account<Moderator>>,
-    active_deliveries: Vec<Delivery>,
     pub page_length: usize,
 }
 
@@ -103,10 +102,12 @@ impl Board {
             .get_user_mut(user_uuid)
             .ok_or(crate::Error::UserNotFound(user_uuid))?;
         let delivery = std::mem::replace(&mut user.cart, Delivery::blank());
-        let (paid_delivery, payment) = Payment::request_for(delivery);
+        let (mut paid_delivery, payment) = Payment::request_for(delivery);
         tracing::info!(message = "saving paid order for", ?user_uuid);
-        user.past_orders.insert(paid_delivery.clone(), payment);
-        self.active_deliveries.push(paid_delivery);
+        paid_delivery.update_status(DeliveryStatus::Collecting);
+        paid_delivery.update_status(DeliveryStatus::InTransit);
+        paid_delivery.update_status(DeliveryStatus::AwaitsPickup);
+        user.past_orders.insert(paid_delivery, payment);
         Ok(())
     }
 }
@@ -118,7 +119,6 @@ impl Default for Board {
             page_length: crate::PAGE_LENGTH,
             users: vec![],
             moderators: vec![],
-            active_deliveries: vec![],
         }
     }
 }

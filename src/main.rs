@@ -1,4 +1,6 @@
-use bsbo_01_22_team1_var13::{Account, Advertisement, Board, Description, Error, Item, Query};
+use bsbo_01_22_team1_var13::{
+    Account, Advertisement, Board, DeliveryStatus, Description, Error, Item, Query,
+};
 use color_eyre::owo_colors::OwoColorize;
 
 fn main() -> Result<(), eyre::Report> {
@@ -26,7 +28,7 @@ fn main() -> Result<(), eyre::Report> {
 
     // Просмотрим все объявления на доске.
     {
-        eprintln!("{}", " ALL ADVERTISEMENTS: ".bold().black().on_magenta());
+        eprint_title("ALL ADVERTISEMENTS:");
         for adv in board.view_advertisements() {
             eprintln!("{adv}\n");
         }
@@ -38,13 +40,7 @@ fn main() -> Result<(), eyre::Report> {
         //                               ^^^^^^
         // Должно найти "user-created advertisement" из кода выше.
 
-        eprintln!(
-            "{}",
-            format!(" SEARCH RESULTS (pattern = {search_string:?}): ")
-                .bold()
-                .black()
-                .on_magenta()
-        );
+        eprint_title(&format!("SEARCH RESULTS (pattern = {search_string:?}):"));
         let results = board
             .search_advertisements(&Query { search_string })
             .cloned()
@@ -66,13 +62,31 @@ fn main() -> Result<(), eyre::Report> {
         let user = board
             .get_user_mut(user_uuid)
             .ok_or(Error::UserNotFound(user_uuid))?;
-        eprintln!("{}", " USER'S PAST ORDERS: ".bold().black().on_magenta());
+        eprint_title("USER'S PAST ORDERS:");
         dbg!(&user.past_orders);
+
+        eprintln!();
+        eprint_title("TRACKING THE LAST ORDER:");
+        match user.past_orders.iter_mut().next() {
+            None => unreachable!(),
+            Some((delivery, _)) => {
+                for (status, datetime) in delivery.track() {
+                    eprintln!("{}: {}", datetime.bold(), status.bold().blue());
+                }
+            }
+        };
     }
 
     Ok(())
 }
 
+fn eprint_title(text: &str) {
+    let text = format!(" {text} ");
+    eprintln!("{}", text.bold().black().on_magenta());
+}
+
+// Настройка и установка `tracing_subscriber` с захватом
+// входа в Span каждой функции с `#[tracing::instrument]`.
 fn setup_tracing() -> Result<(), eyre::Report> {
     use tracing_error::ErrorLayer;
     use tracing_subscriber::fmt::format::FmtSpan;

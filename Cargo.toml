@@ -33,6 +33,7 @@ chrono = "0.4.38"
 color-eyre = "0.6.3"
 eyre = "0.6.12"
 itertools = "0.13.0"
+strum = { version = "0.26.3", features = ["derive"] }
 thiserror = "2.0.3"
 tracing = "0.1.40"
 tracing-error = "0.2.0"

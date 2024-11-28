@@ -47,13 +47,14 @@ impl fmt::Display for Advertisement {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(
             f,
-            "{} {}",
+            "{} {} {:?}",
             self.item.title.bold().underline(),
             match &self.status {
                 AdvertisementStatus::Listed => "",
                 AdvertisementStatus::AwaitsModeration { .. } => "(awaits moderation)",
             }
-            .bright_black()
+            .bright_red(),
+            self.id.bright_black().bold()
         )?;
 
         writeln!(f, "{} {}", "Description:".bold(), self.description.body)?;
