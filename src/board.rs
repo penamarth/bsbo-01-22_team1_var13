@@ -1,11 +1,13 @@
 use crate::{Account, Advertisement, Delivery, DeliveryStatus, Description, Item};
 use crate::{AdvertisementStatus, Moderator, Payment, User};
+use bon::{builder, Builder};
 use chrono::Utc;
 use itertools::Itertools;
 use tracing::instrument;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Builder)]
+#[builder(start_fn = builder)]
 #[must_use]
 pub struct Board {
     advertisements: Vec<Advertisement>,
@@ -14,7 +16,8 @@ pub struct Board {
     pub page_length: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Builder)]
+#[builder(start_fn = new)]
 #[must_use]
 pub struct Query {
     pub search_string: String,
@@ -31,12 +34,12 @@ impl Board {
         let test_seller = Account::test_seller();
         let ad_1 = Advertisement::create(item_1, description_1, test_user.clone());
         let ad_2 = Advertisement::create(item_2, description_2, test_seller.clone());
-        let mut board = Self::default();
-
-        board.users.extend([test_user, test_seller]);
-        board.add_advertisement(ad_1);
-        board.add_advertisement(ad_2);
-        board
+        Self::builder()
+            .page_length(crate::PAGE_LENGTH)
+            .advertisements(vec![ad_1, ad_2])
+            .moderators(vec![])
+            .users(vec![test_user, test_seller])
+            .build()
     }
 
     #[must_use]

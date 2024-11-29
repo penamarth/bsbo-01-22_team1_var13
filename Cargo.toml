@@ -29,6 +29,7 @@ module_name_repetitions = { level = "allow", priority = 1 }
 single_match_else = { level = "allow", priority = 1 }
 
 [dependencies]
+bon = "3.1.1"
 chrono = "0.4.38"
 color-eyre = "0.6.3"
 eyre = "0.6.12"

@@ -40,7 +40,7 @@ fn main() -> Result<(), eyre::Report> {
 
         eprint_title(&format!("SEARCH RESULTS (pattern = {search_string:?}):"));
         let results = board
-            .search_advertisements(&Query { search_string })
+            .search_advertisements(&Query::new().search_string(search_string).build())
             .cloned()
             .collect::<Vec<_>>();
         for adv in &results {
