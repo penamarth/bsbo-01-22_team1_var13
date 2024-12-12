@@ -28,7 +28,7 @@ fn main() -> Result<(), eyre::Report> {
     {
         eprint_title("ALL ADVERTISEMENTS:");
         for adv in board.view_advertisements() {
-            eprintln!("{adv}\n");
+            eprintln!("{adv:#?}\n");
         }
     }
 
@@ -44,7 +44,7 @@ fn main() -> Result<(), eyre::Report> {
             .cloned()
             .collect::<Vec<_>>();
         for adv in &results {
-            eprintln!("{adv}\n");
+            eprintln!("{adv:#?}\n");
         }
 
         // Добавляем в корзину юзера все объявления, которые подошли под поиск.

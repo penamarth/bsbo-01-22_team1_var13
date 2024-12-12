@@ -42,37 +42,3 @@ impl Advertisement {
         self.status = AdvertisementStatus::Listed;
     }
 }
-
-impl fmt::Display for Advertisement {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(
-            f,
-            "{} {} {:?}",
-            self.item.title.bold().underline(),
-            match &self.status {
-                AdvertisementStatus::Listed => "",
-                AdvertisementStatus::AwaitsModeration { .. } => "(awaits moderation)",
-            }
-            .bright_red(),
-            self.id.bright_black().bold()
-        )?;
-
-        writeln!(f, "{} {}", "Description:".bold(), self.description.body)?;
-        writeln!(
-            f,
-            "{} ({} images)",
-            "Images:".bold(),
-            self.description.images.len()
-        )?;
-        writeln!(f, "{} {}", "Price:".bold(), self.item.price.yellow())?;
-
-        match &self.status {
-            AdvertisementStatus::Listed => write!(f, "Listed by {}", self.seller.name.blue())?,
-            AdvertisementStatus::AwaitsModeration { moderator } => {
-                write!(f, "Awaits moderation by {:?}", moderator.name)?;
-            }
-        }
-
-        Ok(())
-    }
-}
