@@ -39,11 +39,13 @@ impl Delivery {
 
     #[instrument(name = "update_delivery_status", skip_all)]
     pub fn update_status(&mut self, new_status: DeliveryStatus) {
+        tracing::info!(message = "updating status", ?new_status);
         self.statuses.push((new_status, Utc::now()));
     }
 
     #[instrument(name = "track_delivery", skip_all)]
     pub fn track(&self) -> impl Iterator<Item = &(DeliveryStatus, DateTime<Utc>)> {
+        tracing::info!(message = "collecting all previous statuses");
         self.statuses
             .iter()
             .sorted_unstable_by_key(|(_, datetime)| datetime)

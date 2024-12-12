@@ -104,9 +104,15 @@ impl Board {
         let user = self
             .get_user_mut(user_uuid)
             .ok_or(crate::Error::UserNotFound(user_uuid))?;
+
+        tracing::info!(message = "checking user's cart for items");
+        if user.cart.items.is_empty() {
+            return Err(crate::Error::EmptyCart);
+        }
+
         let delivery = std::mem::replace(&mut user.cart, Delivery::blank());
         let (mut paid_delivery, payment) = Payment::request_for(delivery);
-        tracing::info!(message = "saving paid order for", ?user_uuid);
+        tracing::info!(message = "saving paid order", buyer = ?user_uuid);
         paid_delivery.update_status(DeliveryStatus::Collecting);
         paid_delivery.update_status(DeliveryStatus::InTransit);
         paid_delivery.update_status(DeliveryStatus::AwaitsPickup);
