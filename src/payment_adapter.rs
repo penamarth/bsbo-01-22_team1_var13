@@ -1,5 +1,6 @@
-use crate::{Delivery, Payment};
+use crate::{Delivery, Error, Payment};
 use chrono::Utc;
+use strum::EnumString;
 use tracing::instrument;
 use uuid::Uuid;
 
@@ -20,10 +21,18 @@ pub trait PaymentSystem {
     fn request_payment(&self, delivery: Delivery) -> (Delivery, Payment);
 }
 
-#[derive(Default, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, EnumString)]
+#[strum(serialize_all = "lowercase")]
 pub enum ExternalPaymentSystem {
-    #[default]
     Default,
+}
+
+impl ExternalPaymentSystem {
+    pub const ENV_KEY: &str = "EXTERNAL_PAYMENT_SYSTEM";
+    pub fn from_env() -> Result<Self, Error> {
+        let string = std::env::var(Self::ENV_KEY)?;
+        Self::try_from(string.as_str()).map_err(|_| Error::UnknownPaymentSystem)
+    }
 }
 
 impl PaymentSystem for ExternalPaymentSystem {

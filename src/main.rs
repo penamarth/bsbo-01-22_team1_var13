@@ -5,7 +5,7 @@ fn main() -> Result<(), eyre::Report> {
     color_eyre::install()?;
     setup_tracing()?;
 
-    let mut board = Board::load();
+    let mut board = Board::load()?;
     let user_uuid = Account::TEST_USER_UUID;
 
     // По умолчанию доска ограничит количество объявлений до 20,

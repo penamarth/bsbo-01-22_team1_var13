@@ -27,7 +27,7 @@ pub struct Query {
 
 impl Board<ExternalPaymentSystem> {
     #[instrument(skip_all, name = "load_board")]
-    pub fn load() -> Self {
+    pub fn load() -> Result<Self, crate::Error> {
         let item_1 = Item::create("Advertisement #1", 500);
         let item_2 = Item::create("Advertisement #2", 1200);
         let description_1 = Description::create("Description of ad #1", vec![]);
@@ -36,15 +36,14 @@ impl Board<ExternalPaymentSystem> {
         let test_seller = Account::test_seller();
         let ad_1 = Advertisement::create(item_1, description_1, test_user.clone());
         let ad_2 = Advertisement::create(item_2, description_2, test_seller.clone());
-        Self::builder()
+        let payment_system = ExternalPaymentSystem::from_env()?;
+        Ok(Self::builder()
             .page_length(crate::PAGE_LENGTH)
             .advertisements(vec![ad_1, ad_2])
             .moderators(vec![])
             .users(vec![test_user, test_seller])
-            .payment_adapter(PaymentAdapter::for_payment_system(
-                ExternalPaymentSystem::default(),
-            ))
-            .build()
+            .payment_adapter(PaymentAdapter::for_payment_system(payment_system))
+            .build())
     }
 
     #[must_use]
