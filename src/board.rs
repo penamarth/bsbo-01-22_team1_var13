@@ -1,5 +1,6 @@
-use crate::{Account, Advertisement, Delivery, DeliveryStatus, Description, Item};
-use crate::{AdvertisementStatus, Moderator, Payment, User};
+use crate::{Account, Advertisement, Delivery, DeliveryStatus, Description};
+use crate::{AdvertisementStatus, Item, Moderator, Payment, User};
+use crate::{ExternalPaymentSystem, PaymentAdapter, PaymentSystem};
 use bon::{builder, Builder};
 use chrono::Utc;
 use itertools::Itertools;
@@ -9,10 +10,11 @@ use uuid::Uuid;
 #[derive(Debug, Builder)]
 #[builder(start_fn = builder)]
 #[must_use]
-pub struct Board {
+pub struct Board<P: PaymentSystem> {
     advertisements: Vec<Advertisement>,
     users: Vec<Account<User>>,
     moderators: Vec<Account<Moderator>>,
+    payment_adapter: PaymentAdapter<P>,
     pub page_length: usize,
 }
 
@@ -23,7 +25,7 @@ pub struct Query {
     pub search_string: String,
 }
 
-impl Board {
+impl Board<ExternalPaymentSystem> {
     #[instrument(skip_all, name = "load_board")]
     pub fn load() -> Self {
         let item_1 = Item::create("Advertisement #1", 500);
@@ -39,6 +41,9 @@ impl Board {
             .advertisements(vec![ad_1, ad_2])
             .moderators(vec![])
             .users(vec![test_user, test_seller])
+            .payment_adapter(PaymentAdapter::for_payment_system(
+                ExternalPaymentSystem::default(),
+            ))
             .build()
     }
 
@@ -101,33 +106,32 @@ impl Board {
 
     #[instrument(skip_all)]
     pub fn place_order(&mut self, user_uuid: Uuid) -> Result<(), crate::Error> {
-        let user = self
-            .get_user_mut(user_uuid)
-            .ok_or(crate::Error::UserNotFound(user_uuid))?;
+        let delivery = {
+            let user = self
+                .get_user_mut(user_uuid)
+                .ok_or(crate::Error::UserNotFound(user_uuid))?;
+            tracing::info!(message = "checking user's cart for items");
+            if user.cart.items.is_empty() {
+                return Err(crate::Error::EmptyCart);
+            }
+            std::mem::replace(&mut user.cart, Delivery::blank())
+        };
 
-        tracing::info!(message = "checking user's cart for items");
-        if user.cart.items.is_empty() {
-            return Err(crate::Error::EmptyCart);
-        }
+        let (mut paid_delivery, payment) = self /* <-- self это Board */
+            .payment_adapter // Обращаемся к адаптеру.
+            .payment_system // Обращаемся к платежной системе (внутри адаптера могут быть другие сервисы).
+            .request_payment(delivery); // Запрашиваем оплату для заказа.
 
-        let delivery = std::mem::replace(&mut user.cart, Delivery::blank());
-        let (mut paid_delivery, payment) = Payment::request_for(delivery);
         tracing::info!(message = "saving paid order", buyer = ?user_uuid);
         paid_delivery.update_status(DeliveryStatus::Collecting);
         paid_delivery.update_status(DeliveryStatus::InTransit);
         paid_delivery.update_status(DeliveryStatus::AwaitsPickup);
-        user.past_orders.insert(paid_delivery, payment);
-        Ok(())
-    }
-}
 
-impl Default for Board {
-    fn default() -> Self {
-        Self {
-            advertisements: vec![],
-            page_length: crate::PAGE_LENGTH,
-            users: vec![],
-            moderators: vec![],
-        }
+        let user = self
+            .get_user_mut(user_uuid)
+            .ok_or(crate::Error::UserNotFound(user_uuid))?;
+        user.past_orders.insert(paid_delivery, payment);
+
+        Ok(())
     }
 }
