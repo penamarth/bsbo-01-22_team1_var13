@@ -52,6 +52,7 @@ fn main() -> Result<(), eyre::Report> {
     }
 
     // Оформим заказ для пользователя.
+    // Весь код после `board.place_order()` - для вывода состояния на экран.
     {
         board.place_order(user_uuid)?;
 
@@ -69,7 +70,7 @@ fn main() -> Result<(), eyre::Report> {
             None => unreachable!(),
             Some((delivery, _)) => {
                 for (status, datetime) in delivery.track() {
-                    eprintln!("{}: {}", datetime.bold(), status.bold().blue());
+                    eprintln!("{datetime}: {status}");
                 }
             }
         };
